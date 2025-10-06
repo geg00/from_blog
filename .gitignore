@@ -20,3 +20,4 @@ web/ui/__pycache__/scripts.cpython-311.pyc
 web/utils/__pycache__/__init__.cpython-311.pyc
 web/utils/__pycache__/formatting.cpython-311.pyc
 web/utils/__pycache__/vectors.cpython-311.pyc
+web/plash.env
