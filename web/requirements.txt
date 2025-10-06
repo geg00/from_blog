@@ -1,0 +1,8 @@
+python-fasthtml
+scikit-learn
+tiktoken
+openai
+requests
+beautifulsoup4
+huggingface-hub
+dspy-ai
