@@ -2,130 +2,57 @@
 
 from __future__ import annotations
 
-import datetime as dt
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, List
 
-from fasthtml.common import A, Div, H1, H2, H3, Img, Li, Main, P, Title, Ul
+from fasthtml.common import A, Div, H1, H2, H3, Img, Li, Main, P, Span, Title, Ul
 from starlette.responses import FileResponse
 
 from web.app import rt
+from web.utils.catalog import CardInfo, format_card_date, get_cards
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 @rt("/")
 def home_page():
-    cards: List[Dict[str, Any]] = [
-        {
-            "title": "Chat",
-            "icon": "💬",
-            "url": "/chat",
-            "description": "Interactive conversations",
-            "gradient": "from-blue-50 to-blue-100",
-            "date": dt.date(2025, 9, 8),
-            "order": 3,
-        },
-        {
-            "title": "Agents",
-            "icon": "🤖",
-            "url": "/agents",
-            "description": "AI agent management",
-            "gradient": "from-green-50 to-green-100",
-            "date": dt.date(2025, 9, 8),
-            "order": 2,
-        },
-        {
-            "title": "Vectors",
-            "icon": "🔢",
-            "url": "/vectors",
-            "description": "Vector operations",
-            "gradient": "from-purple-50 to-purple-100",
-            "date": dt.date(2025, 9, 15),
-            "order": 0,
-        },
-        {
-            "title": "Embeddings",
-            "icon": "🧬",
-            "url": "/embeddings/playground",
-            "description": "Generate and inspect embeddings",
-            "gradient": "from-indigo-50 to-purple-100",
-            "date": dt.date(2025, 9, 15),
-            "order": 1,
-        },
-        {
-            "title": "Query GPT",
-            "icon": "🧠",
-            "url": "/query-gpt/playground",
-            "description": "Natural language to SQL",
-            "gradient": "from-amber-50 to-yellow-100",
-            "date": dt.date(2025, 9, 12),
-            "order": 0,
-        },
-        {
-            "title": "MCP",
-            "icon": "⚡",
-            "url": "/mcp",
-            "description": "Model Context Protocol",
-            "gradient": "from-orange-50 to-orange-100",
-            "date": dt.date(2025, 9, 8),
-            "order": 1,
-        },
-        {
-            "title": "Guardrails",
-            "icon": "🛡️",
-            "url": "/guardrails",
-            "description": "Compliance validation",
-            "gradient": "from-red-50 to-red-100",
-            "date": dt.date(2025, 9, 8),
-            "order": 0,
-        },
-        {
-            "title": "DSPy",
-            "icon": "🧩",
-            "url": "/dspy",
-            "description": "Conversation history with DSPy",
-            "gradient": "from-rose-50 to-pink-100",
-            "date": dt.date(2025, 9, 22),
-            "order": 0,
-        },
-    ]
-
-    sorted_cards = sorted(
-        cards,
-        key=lambda card: (card["date"], card.get("order", 0)),
-        reverse=True,
-    )
-
-    def format_card_date(value: dt.date) -> str:
-        formatted = value.strftime("%d %b %Y")
-        return formatted.lstrip("0")
+    cards: List[CardInfo] = get_cards()
 
     card_elements = [
         A(
             Div(
-                Div(card["icon"], cls="text-5xl mb-4"),
-                H3(card["title"], cls="text-2xl font-bold mb-3 text-gray-800"),
+                Div(card.icon, cls="text-5xl mb-4"),
+                H3(card.title, cls="text-2xl font-bold mb-3 text-gray-800"),
                 P(
-                    card["description"],
+                    card.description,
                     cls="text-gray-600 text-sm",
                 ),
                 Div(
+                    *[
+                        Span(
+                            category,
+                            cls="inline-flex items-center text-xs font-medium bg-white/80 text-gray-700 px-2 py-1 rounded-full border border-gray-200",
+                        )
+                        for category in card.categories
+                    ],
+                    cls="flex flex-wrap gap-2 mt-4",
+                ),
+                Div(
                     P(
-                        format_card_date(card["date"]),
+                        format_card_date(card.date),
                         cls="text-xs font-semibold text-gray-600",
                     ),
                     cls="mt-auto pt-4 border-t border-white/60",
                 ),
                 cls=(
-                    f"bg-gradient-to-br {card['gradient']} p-8 rounded-xl shadow-lg "
+                    f"bg-gradient-to-br {card.gradient} p-8 rounded-xl shadow-lg "
                     "hover:shadow-2xl hover:scale-105 transform transition-all duration-300 "
                     "cursor-pointer border border-gray-100 flex flex-col h-full"
                 ),
             ),
-            href=card["url"],
+            href=card.url,
             cls="block h-full",
         )
-        for card in sorted_cards
+        for card in cards
     ]
 
     return Title("Home"), Main(
@@ -156,6 +83,14 @@ def home_page():
             ),
             H1("Dashboard", cls="text-4xl font-bold mb-2 text-gray-800 text-center"),
             P("Choose a service to get started", cls="text-gray-600 text-center mb-12"),
+            Div(
+                A(
+                    "Browse by category →",
+                    href="/categories",
+                    cls="text-sm text-blue-600 hover:text-blue-800",
+                ),
+                cls="text-center mb-6",
+            ),
             Div(*card_elements, cls="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-7xl mx-auto"),
             cls="min-h-screen bg-gray-50 p-8",
         )
