@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -21,6 +22,8 @@ def home_page():
             "url": "/chat",
             "description": "Interactive conversations",
             "gradient": "from-blue-50 to-blue-100",
+            "date": dt.date(2025, 9, 8),
+            "order": 3,
         },
         {
             "title": "Agents",
@@ -28,6 +31,8 @@ def home_page():
             "url": "/agents",
             "description": "AI agent management",
             "gradient": "from-green-50 to-green-100",
+            "date": dt.date(2025, 9, 8),
+            "order": 2,
         },
         {
             "title": "Vectors",
@@ -35,6 +40,8 @@ def home_page():
             "url": "/vectors",
             "description": "Vector operations",
             "gradient": "from-purple-50 to-purple-100",
+            "date": dt.date(2025, 9, 15),
+            "order": 0,
         },
         {
             "title": "Embeddings",
@@ -42,6 +49,8 @@ def home_page():
             "url": "/embeddings/playground",
             "description": "Generate and inspect embeddings",
             "gradient": "from-indigo-50 to-purple-100",
+            "date": dt.date(2025, 9, 15),
+            "order": 1,
         },
         {
             "title": "Query GPT",
@@ -49,6 +58,8 @@ def home_page():
             "url": "/query-gpt/playground",
             "description": "Natural language to SQL",
             "gradient": "from-amber-50 to-yellow-100",
+            "date": dt.date(2025, 9, 12),
+            "order": 0,
         },
         {
             "title": "MCP",
@@ -56,6 +67,8 @@ def home_page():
             "url": "/mcp",
             "description": "Model Context Protocol",
             "gradient": "from-orange-50 to-orange-100",
+            "date": dt.date(2025, 9, 8),
+            "order": 1,
         },
         {
             "title": "Guardrails",
@@ -63,8 +76,29 @@ def home_page():
             "url": "/guardrails",
             "description": "Compliance validation",
             "gradient": "from-red-50 to-red-100",
+            "date": dt.date(2025, 9, 8),
+            "order": 0,
+        },
+        {
+            "title": "DSPy",
+            "icon": "🧩",
+            "url": "/dspy",
+            "description": "Conversation history with DSPy",
+            "gradient": "from-rose-50 to-pink-100",
+            "date": dt.date(2025, 9, 22),
+            "order": 0,
         },
     ]
+
+    sorted_cards = sorted(
+        cards,
+        key=lambda card: (card["date"], card.get("order", 0)),
+        reverse=True,
+    )
+
+    def format_card_date(value: dt.date) -> str:
+        formatted = value.strftime("%d %b %Y")
+        return formatted.lstrip("0")
 
     card_elements = [
         A(
@@ -75,16 +109,23 @@ def home_page():
                     card["description"],
                     cls="text-gray-600 text-sm",
                 ),
+                Div(
+                    P(
+                        format_card_date(card["date"]),
+                        cls="text-xs font-semibold text-gray-600",
+                    ),
+                    cls="mt-auto pt-4 border-t border-white/60",
+                ),
                 cls=(
                     f"bg-gradient-to-br {card['gradient']} p-8 rounded-xl shadow-lg "
                     "hover:shadow-2xl hover:scale-105 transform transition-all duration-300 "
-                    "cursor-pointer border border-gray-100"
+                    "cursor-pointer border border-gray-100 flex flex-col h-full"
                 ),
             ),
             href=card["url"],
-            cls="block",
+            cls="block h-full",
         )
-        for card in cards
+        for card in sorted_cards
     ]
 
     return Title("Home"), Main(
